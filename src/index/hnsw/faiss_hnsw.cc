@@ -578,8 +578,10 @@ add_to_index(faiss::Index* const __restrict index, const DataSetPtr& dataset, co
     if(hnswIndex) {
         reorder_map_out = hnswIndex->bfs_reorder();
         LOG_KNOWHERE_INFO_ << "bfs_reorder done, reorder_map size = " << reorder_map_out.size();
+        std::cout << "Reorder Finish"
     } else {
         LOG_KNOWHERE_WARNING_ << "Index is not an HNSW index, skip bfs_reorder";
+        std::cout << "Fail Reorder"
     }
 
     return Status::success;
