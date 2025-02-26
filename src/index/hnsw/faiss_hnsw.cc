@@ -574,16 +574,6 @@ add_to_index(faiss::Index* const __restrict index, const DataSetPtr& dataset, co
         }
     }
 
-    auto *hnswIndex = dynamic_cast<faiss::IndexHNSW*>(index);
-    if(hnswIndex) {
-        reorder_map_out = hnswIndex->bfs_reorder();
-        LOG_KNOWHERE_INFO_ << "bfs_reorder done, reorder_map size = " << reorder_map_out.size();
-        std::cout << "Reorder Finish"
-    } else {
-        LOG_KNOWHERE_WARNING_ << "Index is not an HNSW index, skip bfs_reorder";
-        std::cout << "Fail Reorder"
-    }
-
     return Status::success;
 }
 
@@ -1518,6 +1508,15 @@ class BaseFaissRegularIndexHNSWNode : public BaseFaissRegularIndexNode {
         } catch (const std::exception& e) {
             LOG_KNOWHERE_WARNING_ << "faiss inner error: " << e.what();
             return Status::faiss_inner_error;
+        }
+
+        for (size_t i = 0; i < indexes.size(); ++i) {
+            if (indexes[i] != nullptr) {
+                if (auto hnsw_ptr = dynamic_cast<faiss::IndexHNSW*>(indexes[i].get())) {
+                    hnsw_ptr->bfs_reorder();
+                    LOG_KNOWHERE_INFO_ << "Sub-index " << i << " reordered via bfs_reorder().";
+                }
+            }
         }
 
         return Status::success;
