@@ -1,5 +1,5 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -77,6 +77,24 @@ struct IndexHNSW : Index {
     void reset() override;
 
     void shrink_level_0_neighbors(int size);
+
+    /* NEW: Get level0 graph */
+    std::vector<std::vector<int>> extract_level0_graph() const;
+
+    /* NEW: Create new ID for each nodes according to BFS order */
+    std::vector<int> bfs_reorder_level0(const std::vector<std::vector<int>>& level0_graph) const;
+
+    /* NEW: Get reversed mapping table */
+    std::vector<int> get_new_to_old(const std::vector<int>& new_order);
+
+    /* NEW: Reorder HNSW graph */
+    void reorder_hnsw_graph(const std::vector<int>& new_order, const std::vector<int>& new_to_old);
+
+    /* NEW: Reorder storage page */
+    void reorder_storage_codes(const std::vector<int>& new_to_old);
+
+    /* NEW: Wrapped BFS reordering function */
+    std::vector<int>  bfs_reorder();
 
     /** Perform search only on level 0, given the starting points for
      * each vertex.
