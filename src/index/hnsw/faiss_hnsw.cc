@@ -549,6 +549,7 @@ add_to_index(faiss::Index* const __restrict index, const DataSetPtr& dataset, co
     const auto* data = dataset->GetTensor();
     const auto rows = dataset->GetRows();
     const auto dim = dataset->GetDim();
+    std::vector<int>& reorder_map_out;
 
     if (data_format == DataFormatEnum::fp32) {
         // add as is
@@ -571,6 +572,14 @@ add_to_index(faiss::Index* const __restrict index, const DataSetPtr& dataset, co
             // add
             index->add(count_rows, tmp.get());
         }
+    }
+
+    auto *hnswIndex = dynamic_cast<faiss::IndexHNSW*>(index);
+    if(hnswIndex) {
+        reorder_map_out = hnswIndex->bfs_reorder();
+        LOG_KNOWHERE_INFO_ << "bfs_reorder done, reorder_map size = " << reorder_map_out.size();
+    } else {
+        LOG_KNOWHERE_WARNING_ << "Index is not an HNSW index, skip bfs_reorder";
     }
 
     return Status::success;
